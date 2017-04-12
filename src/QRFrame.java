@@ -12,8 +12,8 @@ import javax.swing.JPanel;
 
 public class QRFrame extends JFrame
 {
-	private static final long serialVersionUID = 1L;
-	private static final String DEFAULT_TITLE = "Local IP Address";
+	private static final long	serialVersionUID	= 1L;
+	private static final String	DEFAULT_TITLE		= "Local IP Address";
 
 	public void display(Image image)
 	{
@@ -36,13 +36,15 @@ public class QRFrame extends JFrame
 		this.getContentPane().add(panel);
 		this.pack();
 		this.setTitle(title);
-		
+
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
-        Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-        int x = (int) rect.getMaxX() - this.getWidth();
-        int y = (int) rect.getMaxY() - this.getHeight();
-        this.setLocation(x, y);
-        this.setVisible(true);
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+		int x = (int) rect.getMaxX() - this.getWidth();
+		int y = (int) rect.getMaxY() - this.getHeight();
+		this.setLocation(x, y);
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setAlwaysOnTop(true);
+		this.setVisible(true);
 	}
 }

@@ -55,7 +55,8 @@ public class QRCodeGenerator
 
 			return image;
 
-		} catch (WriterException e)
+		}
+		catch (WriterException e)
 		{
 			e.printStackTrace();
 		}
