@@ -13,8 +13,14 @@ import javax.swing.JPanel;
 public class QRFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	
+	private static final String DEFAULT_TITLE = "Local IP Address";
+
 	public void display(Image image)
+	{
+		display(image, DEFAULT_TITLE);
+	}
+
+	public void display(Image image, String title)
 	{
 		if (image == null)
 		{
@@ -29,6 +35,7 @@ public class QRFrame extends JFrame
 		panel.add(label);
 		this.getContentPane().add(panel);
 		this.pack();
+		this.setTitle(title);
 		
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();

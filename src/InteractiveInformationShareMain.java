@@ -10,6 +10,6 @@ public class InteractiveInformationShareMain
 		Image qrCode = QRCodeGenerator.generateQRCode(localAddress);
 		
 		QRFrame qrFrame = new QRFrame();
-		qrFrame.display(qrCode);
+		qrFrame.display(qrCode, localAddress);
 	}
 }
