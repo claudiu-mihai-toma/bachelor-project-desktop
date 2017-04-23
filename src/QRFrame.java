@@ -14,13 +14,15 @@ public class QRFrame extends JFrame
 {
 	private static final long	serialVersionUID	= 1L;
 	private static final String	DEFAULT_TITLE		= "Local IP Address";
-
-	public void display(Image image)
+	private int mXcoordinate;
+	private int mYcoordinate;
+	
+	public void initialize(Image image)
 	{
-		display(image, DEFAULT_TITLE);
+		initialize(image, DEFAULT_TITLE);
 	}
 
-	public void display(Image image, String title)
+	public void initialize(Image image, String title)
 	{
 		if (image == null)
 		{
@@ -40,11 +42,16 @@ public class QRFrame extends JFrame
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-		int x = (int) rect.getMaxX() - this.getWidth();
-		int y = (int) rect.getMaxY() - this.getHeight();
-		this.setLocation(x, y);
+		mXcoordinate = (int) rect.getMaxX() - this.getWidth();
+		mYcoordinate = (int) rect.getMaxY() - this.getHeight();
+		this.setLocation(mXcoordinate, mYcoordinate);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setAlwaysOnTop(true);
+	}
+	
+	public void displayInCorner()
+	{
+		this.setLocation(mXcoordinate, mYcoordinate);
 		this.setVisible(true);
 	}
 }

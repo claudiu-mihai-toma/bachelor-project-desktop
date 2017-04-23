@@ -1,6 +1,7 @@
 import java.awt.Image;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Timer;
 
 public class InteractiveInformationShareMain
 {
@@ -12,18 +13,22 @@ public class InteractiveInformationShareMain
 		Image qrCode = QRCodeGenerator.generateQRCode(localAddress);
 
 		QRFrame qrFrame = new QRFrame();
-		qrFrame.display(qrCode, localAddress);
+		qrFrame.initialize(qrCode, localAddress);
 
 		ContentReceiver contentReceiver;
+		BroadcastBeaconReceiver broadcastBeaconReceiver;
+		Timer timer = new Timer();
 		try
 		{
 			contentReceiver = new ContentReceiver(localAddress);
+			broadcastBeaconReceiver = new BroadcastBeaconReceiver(localAddress, qrFrame);
 		}
 		catch (SocketException | UnknownHostException e)
 		{
 			e.printStackTrace();
 			return;
 		}
+		timer.schedule(broadcastBeaconReceiver, 0, BroadcastBeaconReceiver.SOCKET_TIMEOUT);
 
 		while (qrFrame.isDisplayable())
 		{
@@ -33,7 +38,9 @@ public class InteractiveInformationShareMain
 				System.out.println(content);
 			}
 		}
-
+		
+		timer.cancel();
 		contentReceiver.close();
+		broadcastBeaconReceiver.close();
 	}
 }
