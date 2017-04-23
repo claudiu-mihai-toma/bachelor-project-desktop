@@ -55,7 +55,7 @@ public class QRFrame extends JFrame
 		this.setVisible(true);
 	}
 
-	public void hide()
+	public void hideFrame()
 	{
 		this.setVisible(false);
 	}

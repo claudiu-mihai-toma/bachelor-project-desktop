@@ -36,7 +36,7 @@ public class BroadcastBeaconReceiver extends TimerTask
 			mDatagramSocket.receive(datagramPacket);
 
 			String message = new String(datagramPacket.getData()).substring(0, datagramPacket.getLength());
-			System.out.println("Broadcast received: " + message);
+			// System.out.println("Broadcast received: " + message);
 
 			if (message.equals(BEACON_MESSAGE))
 			{
@@ -45,18 +45,19 @@ public class BroadcastBeaconReceiver extends TimerTask
 			}
 			else
 			{
-				mQRFrame.setVisible(false);
+				mQRFrame.hideFrame();
 			}
+			
 		}
 		catch (SocketException e)
 		{
 			// e.printStackTrace();
-			mQRFrame.setVisible(false);
+			mQRFrame.hideFrame();
 		}
 		catch (IOException e)
 		{
 			// e.printStackTrace();
-			mQRFrame.setVisible(false);
+			mQRFrame.hideFrame();
 		}
 	}
 
