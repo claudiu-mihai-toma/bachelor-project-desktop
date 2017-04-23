@@ -14,9 +14,9 @@ public class QRFrame extends JFrame
 {
 	private static final long	serialVersionUID	= 1L;
 	private static final String	DEFAULT_TITLE		= "Local IP Address";
-	private int mXcoordinate;
-	private int mYcoordinate;
-	
+	private int					mXcoordinate;
+	private int					mYcoordinate;
+
 	public void initialize(Image image)
 	{
 		initialize(image, DEFAULT_TITLE);
@@ -48,10 +48,15 @@ public class QRFrame extends JFrame
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setAlwaysOnTop(true);
 	}
-	
+
 	public void displayInCorner()
 	{
 		this.setLocation(mXcoordinate, mYcoordinate);
 		this.setVisible(true);
+	}
+
+	public void hide()
+	{
+		this.setVisible(false);
 	}
 }

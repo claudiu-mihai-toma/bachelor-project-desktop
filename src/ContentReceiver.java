@@ -1,38 +1,32 @@
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class ContentReceiver
 {
 	private static final int	CONTENT_RECEIVER_PORT	= 9753;
-	private static final int	RECEIVE_DATA_BUFFER_LEN	= 1024;
 	private static final int	SOCKET_TIMEOUT			= 500;
 
-	private DatagramSocket		datagramSocket			= null;
-	byte[]						receiveData				= new byte[RECEIVE_DATA_BUFFER_LEN];
+	private ServerSocket		mServerSocket			= null;
 
-	public ContentReceiver(String localAddress) throws SocketException, UnknownHostException
+	public ContentReceiver() throws IOException
 	{
-		datagramSocket = new DatagramSocket(CONTENT_RECEIVER_PORT, InetAddress.getByName(localAddress));
-		datagramSocket.setSoTimeout(SOCKET_TIMEOUT);
+		mServerSocket = new ServerSocket(CONTENT_RECEIVER_PORT);
+		mServerSocket.setSoTimeout(SOCKET_TIMEOUT);
 	}
 
 	public String getContent()
 	{
 		try
 		{
-			DatagramPacket datagramPacket = new DatagramPacket(receiveData, receiveData.length);
-			datagramSocket.receive(datagramPacket);
+			Socket socket = mServerSocket.accept();
+			DataInputStream is = new DataInputStream(socket.getInputStream());
 
-			return new String(datagramPacket.getData()).substring(0, datagramPacket.getLength());
+			String receivedData = is.readUTF();
 
-		}
-		catch (SocketException e)
-		{
-			// e.printStackTrace();
+			return receivedData;
+
 		}
 		catch (IOException e)
 		{
@@ -43,6 +37,13 @@ public class ContentReceiver
 
 	public void close()
 	{
-		datagramSocket.close();
+		try
+		{
+			mServerSocket.close();
+		}
+		catch (IOException e)
+		{
+			// e.printStackTrace();
+		}
 	}
 }

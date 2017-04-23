@@ -1,6 +1,5 @@
 import java.awt.Image;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.Timer;
 
 public class InteractiveInformationShareMain
@@ -20,10 +19,10 @@ public class InteractiveInformationShareMain
 		Timer timer = new Timer();
 		try
 		{
-			contentReceiver = new ContentReceiver(localAddress);
+			contentReceiver = new ContentReceiver();
 			broadcastBeaconReceiver = new BroadcastBeaconReceiver(localAddress, qrFrame);
 		}
-		catch (SocketException | UnknownHostException e)
+		catch (IOException e)
 		{
 			e.printStackTrace();
 			return;
@@ -35,10 +34,10 @@ public class InteractiveInformationShareMain
 			String content = contentReceiver.getContent();
 			if (content != null)
 			{
-				System.out.println(content);
+				System.out.println("CONTENT: [" + content + "]");
 			}
 		}
-		
+
 		timer.cancel();
 		contentReceiver.close();
 		broadcastBeaconReceiver.close();

@@ -5,15 +5,15 @@ import java.util.Enumeration;
 
 public class LocalAddressGetter
 {
-	private static String localAddress = null;
+	private static String mLocalAddress = null;
 
 	public String getLocalAddress()
 	{
-		if (localAddress == null)
+		if (mLocalAddress == null)
 		{
-			localAddress = aquireLocalAddress();
+			mLocalAddress = aquireLocalAddress();
 		}
-		return localAddress;
+		return mLocalAddress;
 	}
 
 	private String aquireLocalAddress()
