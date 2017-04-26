@@ -29,6 +29,8 @@ public class InteractiveInformationShareMain
 		}
 		timer.schedule(broadcastBeaconReceiver, 0, BroadcastBeaconReceiver.SOCKET_TIMEOUT);
 
+		ScreenshotFrame screenshotFrame = new ScreenshotFrame();
+		
 		while (qrFrame.isDisplayable())
 		{
 			String content = contentReceiver.getContent();
@@ -36,6 +38,8 @@ public class InteractiveInformationShareMain
 			{
 				System.out.println("CONTENT: [" + content + "]");
 			}
+			
+			screenshotFrame.updateScreenshot();
 		}
 
 		timer.cancel();
