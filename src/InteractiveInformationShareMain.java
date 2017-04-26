@@ -41,7 +41,7 @@ public class InteractiveInformationShareMain
 			
 			screenshotFrame.updateScreenshot();
 		}
-
+		
 		timer.cancel();
 		contentReceiver.close();
 		broadcastBeaconReceiver.close();

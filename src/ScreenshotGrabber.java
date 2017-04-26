@@ -16,4 +16,9 @@ public class ScreenshotGrabber
 	{
 		return mWebcam.getImage();
 	}
+	
+	public void close()
+	{
+		mWebcam.close();
+	}
 }

@@ -6,21 +6,22 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import ij.process.ColorProcessor;
+
 public class ScreenshotFrame extends JFrame
 {
-	private static final long serialVersionUID = 1L;
-	JLabel mLabel = null;
-	ScreenshotGrabber mScreenshotGrabber = null;
-	
+	private static final long	serialVersionUID	= 1L;
+	JLabel						mLabel				= null;
+	ScreenshotGrabber			mScreenshotGrabber	= null;
+
 	public ScreenshotFrame()
 	{
 		mScreenshotGrabber = new ScreenshotGrabber();
-		BufferedImage image = mScreenshotGrabber.getScreenshot();
-		
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.BLACK);
-		ImageIcon icon = new ImageIcon(image);
+		ImageIcon icon = getEdgeImageIcon();
 		mLabel = new JLabel();
 		mLabel.setIcon(icon);
 		panel.add(mLabel);
@@ -30,11 +31,23 @@ public class ScreenshotFrame extends JFrame
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
-	
-	void updateScreenshot()
+
+	public ImageIcon getEdgeImageIcon()
 	{
 		BufferedImage image = mScreenshotGrabber.getScreenshot();
-		ImageIcon icon = new ImageIcon(image);
+
+		ColorProcessor ip = new ColorProcessor(image);
+		ip.findEdges();
+		BufferedImage edgeImage = ip.getBufferedImage();
+		
+		ImageIcon edgeIcon = new ImageIcon(edgeImage);
+		
+		return edgeIcon;
+	}
+
+	public void updateScreenshot()
+	{
+		ImageIcon icon = getEdgeImageIcon();	
 		mLabel.setIcon(icon);
 		mLabel.repaint();
 	}
