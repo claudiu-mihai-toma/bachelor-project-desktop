@@ -38,18 +38,23 @@ public class LocalAddressGetter
 							// Found non-loopback site-local address. Return it
 							// immediately...
 							return inetAddr.getHostAddress();
-						} else if (candidateAddress == null)
-						{
-							// Found non-loopback address, but not necessarily
-							// site-local.
-							// Store it as a candidate to be returned if
-							// site-local address is not subsequently found...
-							candidateAddress = inetAddr;
-							// Note that we don't repeatedly assign non-loopback
-							// non-site-local addresses as candidates,
-							// only the first. For subsequent iterations,
-							// candidate will be non-null.
 						}
+						else
+							if (candidateAddress == null)
+							{
+								// Found non-loopback address, but not
+								// necessarily
+								// site-local.
+								// Store it as a candidate to be returned if
+								// site-local address is not subsequently
+								// found...
+								candidateAddress = inetAddr;
+								// Note that we don't repeatedly assign
+								// non-loopback
+								// non-site-local addresses as candidates,
+								// only the first. For subsequent iterations,
+								// candidate will be non-null.
+							}
 					}
 				}
 			}
@@ -72,7 +77,8 @@ public class LocalAddressGetter
 				throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
 			}
 			return jdkSuppliedAddress.getHostAddress();
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
