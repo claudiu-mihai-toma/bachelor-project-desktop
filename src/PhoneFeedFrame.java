@@ -13,11 +13,12 @@ import javax.swing.JPanel;
 
 public class PhoneFeedFrame extends JFrame
 {
-	private static final long	serialVersionUID	= 1L;
-	private static final String	DEFAULT_TITLE		= "Phone feed frame";
+	private static final long	serialVersionUID			= 1L;
+	private static final String	DEFAULT_TITLE				= "Phone feed frame";
 	private int					mXcoordinate;
 	private int					mYcoordinate;
 	private JLabel				mLabel;
+	boolean						mPhoneFeedFrameInitialized	= false;
 
 	public void initialize(Image image)
 	{
@@ -49,6 +50,8 @@ public class PhoneFeedFrame extends JFrame
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setAlwaysOnTop(true);
 		displayInCorner();
+
+		mPhoneFeedFrameInitialized = true;
 	}
 
 	public void displayInCorner()
@@ -64,10 +67,17 @@ public class PhoneFeedFrame extends JFrame
 
 	public void updateFrame(BufferedImage image)
 	{
-		ImageIcon icon = new ImageIcon(image);
-		mLabel.setIcon(icon);
-		mLabel.repaint();
-		this.pack();
-		this.displayInCorner();
+		if (mPhoneFeedFrameInitialized)
+		{
+			ImageIcon icon = new ImageIcon(image);
+			mLabel.setIcon(icon);
+			mLabel.repaint();
+			this.pack();
+			this.displayInCorner();
+		}
+		else
+		{
+			initialize(image);
+		}
 	}
 }

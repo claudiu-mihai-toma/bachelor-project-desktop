@@ -7,19 +7,22 @@ import java.util.TimerTask;
 
 public class BroadcastBeaconReceiver extends TimerTask
 {
-	private static final int	BEACON_RECEIVER_PORT	= 9751;
-	private static final String	BEACON_MESSAGE			= "interactive_information_share";
-	public static final int		SOCKET_TIMEOUT			= 500;
+	private static final String		BEACON_MESSAGE	= "interactive_information_share";
 
-	private DatagramSocket		mDatagramSocket			= null;
-	private byte[]				mReceiveData			= new byte[BEACON_MESSAGE.length()];
-	private QRFrame				mQRFrame				= null;
+	private DatagramSocket			mDatagramSocket	= null;
+	private byte[]					mReceiveData	= new byte[BEACON_MESSAGE.length()];
+	private int						mPort;
+	private int						mTimeout;
+	private BeaconActionInterface	mBeaconAction;
 
-	public BroadcastBeaconReceiver(String localAddress, QRFrame qrframe) throws SocketException, UnknownHostException
+	public BroadcastBeaconReceiver(int port, int timeout, BeaconActionInterface beaconAction)
+			throws SocketException, UnknownHostException
 	{
-		mDatagramSocket = new DatagramSocket(BEACON_RECEIVER_PORT);
-		mDatagramSocket.setSoTimeout(SOCKET_TIMEOUT);
-		mQRFrame = qrframe;
+		mPort = port;
+		mTimeout = timeout;
+		mDatagramSocket = new DatagramSocket(mPort);
+		mDatagramSocket.setSoTimeout(mTimeout);
+		mBeaconAction = beaconAction;
 	}
 
 	public void close()
@@ -40,24 +43,19 @@ public class BroadcastBeaconReceiver extends TimerTask
 
 			if (message.equals(BEACON_MESSAGE))
 			{
-				mQRFrame.displayInCorner();
+				String address = datagramPacket.getAddress().getHostAddress();
+				mBeaconAction.actionSuccess(address);
 				clearDataQueue();
 			}
 			else
 			{
-				mQRFrame.hideFrame();
+				mBeaconAction.actionFailure();
 			}
-			
-		}
-		catch (SocketException e)
-		{
-			// e.printStackTrace();
-			mQRFrame.hideFrame();
+
 		}
 		catch (IOException e)
 		{
-			// e.printStackTrace();
-			mQRFrame.hideFrame();
+			mBeaconAction.actionFailure();
 		}
 	}
 
@@ -65,7 +63,7 @@ public class BroadcastBeaconReceiver extends TimerTask
 	private void clearDataQueue() throws SocketException
 	{
 		mDatagramSocket.close();
-		mDatagramSocket = new DatagramSocket(BEACON_RECEIVER_PORT);
-		mDatagramSocket.setSoTimeout(SOCKET_TIMEOUT);
+		mDatagramSocket = new DatagramSocket(mPort);
+		mDatagramSocket.setSoTimeout(mTimeout);
 	}
 }

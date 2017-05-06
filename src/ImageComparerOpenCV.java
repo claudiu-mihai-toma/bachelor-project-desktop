@@ -6,7 +6,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.DMatch;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDMatch;
@@ -18,18 +17,17 @@ import org.opencv.imgcodecs.Imgcodecs;
 
 public class ImageComparerOpenCV
 {
+	private static final double DEFAULT_THRESHOLD_DISTANCE = 30;
+	
 	private static String	FILE_1	= "file1.jpeg";
 	private static String	FILE_2	= "file2.jpeg";
 
-	public static double compare2(BufferedImage image1, BufferedImage image2)
+
+	public static int compare(BufferedImage image1, BufferedImage image2)
 	{
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		Mat mat = Mat.eye(3, 3, CvType.CV_8UC1);
-		System.out.println("mat = " + mat.dump());
-
-		return 0;
+		return compare(image1, image2, DEFAULT_THRESHOLD_DISTANCE);
 	}
-
+	
 	/**
 	 * Compare that two images is similar using feature mapping
 	 * 
@@ -40,7 +38,7 @@ public class ImageComparerOpenCV
 	 *            - the second image
 	 * @return integer - count that has the similarity within images
 	 */
-	public static int compare(BufferedImage image1, BufferedImage image2)
+	public static int compare(BufferedImage image1, BufferedImage image2, double thresholdDistance)
 	{
 		File file1 = null;
 		File file2 = null;
@@ -125,7 +123,7 @@ public class ImageComparerOpenCV
 			// Extract good images (distances are under 10)
 			for (int i = 0; i < descriptors1.rows(); i++)
 			{
-				if (match[i].distance <= 30)
+				if (match[i].distance <= thresholdDistance)
 				{
 					retVal++;
 				}

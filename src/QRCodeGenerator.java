@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
@@ -16,12 +15,12 @@ public class QRCodeGenerator
 {
 	public static int DEFAULT_SIZE = 250;
 
-	public static Image generateQRCode(String myCodeText)
+	public static BufferedImage generateQRCode(String myCodeText)
 	{
 		return generateQRCode(myCodeText, DEFAULT_SIZE);
 	}
 
-	public static Image generateQRCode(String myCodeText, int size)
+	public static BufferedImage generateQRCode(String myCodeText, int size)
 	{
 		try
 		{
