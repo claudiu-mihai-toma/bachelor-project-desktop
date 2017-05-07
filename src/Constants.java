@@ -14,5 +14,5 @@ public class Constants
 	public static final int	QR_SOCKET_TIMEOUT			= 500;
 	public static final int	QR_TIMER_PERIOD				= 500;
 	public static final int	PHONE_IMAGE_SOCKET_TIMEOUT	= 3000;
-	public static final int	PHONE_IMAGE_TIMER_PERIOD	= 3000;
+	public static final int	PHONE_IMAGE_TIMER_PERIOD	= 1;
 }

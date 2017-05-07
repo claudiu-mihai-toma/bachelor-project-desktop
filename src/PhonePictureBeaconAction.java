@@ -1,6 +1,8 @@
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import ij.process.ImageConverter;
+
 public class PhonePictureBeaconAction implements BeaconActionInterface
 {
 
@@ -39,6 +41,8 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 			mBufferedImageReceiver = null;
 			return;
 		}
+		
+		receivedBufferedImage = ImageDistanceCalculator.resize(receivedBufferedImage);
 
 		mPhoneFeedFrame.updateFrame(receivedBufferedImage);
 
@@ -55,6 +59,8 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 			mBufferedImageReceiver.close();
 			mBufferedImageReceiver = null;
 		}
+		
+		mPhoneFeedFrame.hideFrame();
 	}
 
 }
