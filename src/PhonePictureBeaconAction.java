@@ -1,8 +1,6 @@
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import ij.process.ImageConverter;
-
 public class PhonePictureBeaconAction implements BeaconActionInterface
 {
 
@@ -27,8 +25,6 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 				return;
 			}
 		}
@@ -48,7 +44,8 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 
 		BufferedImage screenshotBufferedImage = mScreenshotFrame.getNewScreenshot();
 		
-		ImageComparerOpenCV.compare(receivedBufferedImage, screenshotBufferedImage);
+		int comparisonResult = ImageComparerOpenCV.compare(receivedBufferedImage, screenshotBufferedImage);
+		mBufferedImageReceiver.sendInt(comparisonResult);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ public class StringReceiver extends AbstractServerReceiver<String>
 		try
 		{
 			Socket socket = mServerSocket.accept();
+			socket.setSoTimeout(Constants.DATA_TRANSFER_SOCKET_TIMEOUT);
 			DataInputStream is = new DataInputStream(socket.getInputStream());
 
 			String receivedData = is.readUTF();

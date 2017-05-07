@@ -44,7 +44,13 @@ public class InteractiveInformationShareMain
 
 		while (qrFrame.isDisplayable())
 		{
-			contentStringReceiver.receive();
+			String content = contentStringReceiver.receive();
+
+			if (content != null)
+			{
+				System.out.println("content = [" + content + "]\n");
+			}
+
 			screenshotFrame.updateScreenshot();
 		}
 
