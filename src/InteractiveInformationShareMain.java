@@ -1,6 +1,8 @@
 import java.awt.Image;
 import java.io.IOException;
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class InteractiveInformationShareMain
 {
@@ -19,29 +21,25 @@ public class InteractiveInformationShareMain
 		PhoneFeedFrame phoneFeedFrame = new PhoneFeedFrame();
 
 		StringReceiver contentStringReceiver;
-		BroadcastBeaconReceiver qrBroadcastBeaconReceiver;
 		BroadcastBeaconReceiver phonePictureBroadcastBeaconReceiver;
 
-		Timer qrTimer = new Timer();
-		Timer phonePictureTimer = new Timer();
+		ScheduledExecutorService phonePictureService = Executors.newScheduledThreadPool(1);
+		
 		try
 		{
 			contentStringReceiver = new StringReceiver(Constants.Ports.CONTENT_RECEIVER_PORT);
-			qrBroadcastBeaconReceiver = new BroadcastBeaconReceiver(Constants.Ports.QR_BEACON_PORT,
-					Constants.QR_SOCKET_TIMEOUT, new QRBeaconAction(qrFrame));
 
 			phonePictureBroadcastBeaconReceiver = new BroadcastBeaconReceiver(
 					Constants.Ports.PICTURE_STREAM_BEACON_PORT, Constants.PHONE_IMAGE_SOCKET_TIMEOUT,
-					new PhonePictureBeaconAction(phoneFeedFrame, screenshotFrame));
+					new PhonePictureBeaconAction(phoneFeedFrame, screenshotFrame, qrFrame));
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 			return;
 		}
-		qrTimer.schedule(qrBroadcastBeaconReceiver, 0, Constants.QR_TIMER_PERIOD);
-		phonePictureTimer.schedule(phonePictureBroadcastBeaconReceiver, 0, Constants.PHONE_IMAGE_TIMER_PERIOD);
-
+		phonePictureService.scheduleWithFixedDelay(phonePictureBroadcastBeaconReceiver, 0, Constants.PHONE_IMAGE_TIMER_PERIOD, TimeUnit.MILLISECONDS);
+		
 		while (qrFrame.isDisplayable())
 		{
 			String content = contentStringReceiver.receive();
@@ -53,7 +51,7 @@ public class InteractiveInformationShareMain
 
 			screenshotFrame.updateScreenshot();
 		}
-
-		qrTimer.cancel();
+		
+		phonePictureService.shutdown();
 	}
 }

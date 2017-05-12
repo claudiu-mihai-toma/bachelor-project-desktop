@@ -3,9 +3,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.TimerTask;
 
-public class BroadcastBeaconReceiver extends TimerTask
+public class BroadcastBeaconReceiver implements Runnable
 {
 	private static final String		BEACON_MESSAGE	= "interactive_information_share";
 

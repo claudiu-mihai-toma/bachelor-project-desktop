@@ -3,7 +3,7 @@ import java.net.ServerSocket;
 
 public abstract class AbstractServerReceiver<T>
 {
-	private static final int	SOCKET_TIMEOUT			= 500;
+	private static final int	SOCKET_TIMEOUT			= 10;
 
 	protected ServerSocket		mServerSocket;
 

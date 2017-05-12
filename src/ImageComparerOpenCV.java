@@ -118,7 +118,7 @@ public class ImageComparerOpenCV
 				if (dist > max_dist)
 					max_dist = dist;
 			}
-			System.out.println("max_dist=" + max_dist + ", min_dist=" + min_dist);
+			//System.out.println("max_dist=" + max_dist + ", min_dist=" + min_dist);
 
 			// Extract good images (distances are under 10)
 			for (int i = 0; i < descriptors1.rows(); i++)
@@ -128,11 +128,11 @@ public class ImageComparerOpenCV
 					retVal++;
 				}
 			}
-			System.out.println("matching count=" + retVal + " out of " + descriptors1.rows());
+			//System.out.println("matching count=" + retVal + " out of " + descriptors1.rows());
 		}
 
 		long estimatedTime = System.currentTimeMillis() - startTime;
-		System.out.println("estimatedTime=" + estimatedTime + "ms");
+		//System.out.println("estimatedTime=" + estimatedTime + "ms");
 		System.out.println();
 
 		return retVal;

@@ -8,6 +8,7 @@ public abstract class AbstractReceiver<T>
 	
 	public AbstractReceiver(String address, int port) throws UnknownHostException, IOException
 	{
+		System.out.println("New Socket!");
 		mSocket = new Socket(address, port);
 		mSocket.setSoTimeout(Constants.DATA_TRANSFER_SOCKET_TIMEOUT);
 	}
