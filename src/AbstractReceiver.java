@@ -10,7 +10,7 @@ public abstract class AbstractReceiver<T>
 	{
 		System.out.println("New Socket!");
 		mSocket = new Socket(address, port);
-		mSocket.setSoTimeout(Constants.DATA_TRANSFER_SOCKET_TIMEOUT);
+		mSocket.setSoTimeout(Constants.Timeouts.DATA_TRANSFER_SOCKET_TIMEOUT);
 	}
 
 	public abstract T receive();
@@ -20,6 +20,7 @@ public abstract class AbstractReceiver<T>
 		try
 		{
 			mSocket.close();
+			System.out.println("Socket closed.");
 		}
 		catch (IOException e)
 		{

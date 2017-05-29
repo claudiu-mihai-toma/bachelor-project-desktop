@@ -59,7 +59,7 @@ public class ImageComparerOpenCV
 		}
 
 		int retVal = 0;
-		long startTime = System.currentTimeMillis();
+		//long startTime = System.currentTimeMillis();
 
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
@@ -131,9 +131,9 @@ public class ImageComparerOpenCV
 			//System.out.println("matching count=" + retVal + " out of " + descriptors1.rows());
 		}
 
-		long estimatedTime = System.currentTimeMillis() - startTime;
+		//long estimatedTime = System.currentTimeMillis() - startTime;
 		//System.out.println("estimatedTime=" + estimatedTime + "ms");
-		System.out.println();
+		//System.out.println();
 
 		return retVal;
 	}

@@ -24,10 +24,10 @@ public class BufferedImageReceiver extends AbstractReceiver<BufferedImage>
 		try
 		{
 			int imageSize = mInputStream.readInt();
-			System.out.println("Image size = " + imageSize);
+			//System.out.println("Image size = " + imageSize);
 			byte[] imageBytes = new byte[imageSize];
 			mInputStream.readFully(imageBytes);
-			System.out.println("Image fully received.");
+			//System.out.println("Image fully received.");
 
 			/*
 			 * FileOutputStream fos = new FileOutputStream("android.bmp");
@@ -38,7 +38,7 @@ public class BufferedImageReceiver extends AbstractReceiver<BufferedImage>
 
 			if (image != null)
 			{
-				System.out.println("Image returned.");
+				//System.out.println("Image returned.");
 			}
 			else
 			{

@@ -69,7 +69,7 @@ public class PhoneFeedFrame extends JFrame
 	{
 		if (mPhoneFeedFrameInitialized)
 		{
-			System.out.println("Phone feed initialized.");
+			//System.out.println("Phone feed already initialized.");
 			ImageIcon icon = new ImageIcon(image);
 			mLabel.setIcon(icon);
 			mLabel.repaint();
@@ -78,7 +78,7 @@ public class PhoneFeedFrame extends JFrame
 		}
 		else
 		{
-			System.out.println("Phone feed uninitialized.");
+			//System.out.println("Initializing phone feed...");
 			initialize(image);
 		}
 	}
