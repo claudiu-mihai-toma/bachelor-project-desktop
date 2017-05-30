@@ -1,7 +1,11 @@
 import java.awt.Image;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +15,8 @@ public class InteractiveInformationShareMain
 
 	public static void main(String[] args)
 	{
+		Content contentToSend = handleArgs(args);
+
 		LocalAddressGetter localAddressGetter = new LocalAddressGetter();
 		String localAddress = localAddressGetter.getLocalAddress();
 
@@ -22,14 +28,14 @@ public class InteractiveInformationShareMain
 		EdgeDetectedScreenshotFrame screenshotFrame = new EdgeDetectedScreenshotFrame();
 		PhoneFeedFrame phoneFeedFrame = new PhoneFeedFrame();
 
-		ContentServerReceiver contentReceiver;
+		ContentTransferServer contentTransferServer;
 		BroadcastBeaconReceiver phonePictureBroadcastBeaconReceiver;
 
 		ScheduledExecutorService phonePictureService = Executors.newScheduledThreadPool(1);
 
 		try
 		{
-			contentReceiver = new ContentServerReceiver(Constants.Ports.CONTENT_RECEIVER_PORT);
+			contentTransferServer = new ContentTransferServer(Constants.Ports.CONTENT_RECEIVER_PORT);
 
 			phonePictureBroadcastBeaconReceiver = new BroadcastBeaconReceiver(
 					Constants.Ports.PICTURE_STREAM_BEACON_PORT, Constants.Timeouts.PHONE_IMAGE_SOCKET_TIMEOUT,
@@ -45,10 +51,21 @@ public class InteractiveInformationShareMain
 
 		while (qrFrame.isDisplayable())
 		{
-			Content content = contentReceiver.receive();
-
-			handleContent(content);
-
+			if (contentToSend != null)
+			{
+				// System.out.println("Sending content...");
+				boolean sendSucceeded = contentTransferServer.send(contentToSend);
+				if (sendSucceeded)
+				{
+					System.out.println("Content sent.");
+					contentToSend = null;
+				}
+			}
+			else
+			{
+				Content content = contentTransferServer.receive();
+				handleContent(content);
+			}
 			screenshotFrame.updateScreenshot();
 		}
 
@@ -102,5 +119,46 @@ public class InteractiveInformationShareMain
 		}
 
 		System.out.println("content = [" + fileName + "]\n");
+	}
+
+	public static Content handleArgs(String[] args)
+	{
+		String title;
+		if (args.length != 0)
+		{
+			if (args.length > 1)
+			{
+				throw new RuntimeException(
+						"Too many arguments. Received " + args.length + " arguments instead of 0 or 1.");
+			}
+
+			System.out.println(args[0]);
+			title = args[0];
+			return handleTitle(title);
+		}
+		return null;
+	}
+
+	public static Content handleTitle(String title)
+	{
+		File file = new File(title);
+		byte[] data = null;
+		Content.ContentType type = Content.ContentType.TEXT;
+
+		if (file.isFile())
+		{
+			Path path = Paths.get(title);
+			try
+			{
+				data = Files.readAllBytes(path);
+				type = Content.ContentType.IMAGE;
+			}
+			catch (IOException e)
+			{
+				// e.printStackTrace();
+			}
+		}
+
+		return new Content(type, title, data);
 	}
 }

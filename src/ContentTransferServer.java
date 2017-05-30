@@ -1,13 +1,44 @@
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ContentServerReceiver extends AbstractServerReceiver<Content>
+public class ContentTransferServer extends AbstractTransferServer<Content>
 {
 
-	public ContentServerReceiver(int port) throws IOException
+	public ContentTransferServer(int port) throws IOException
 	{
 		super(port);
+	}
+
+	@Override
+	public boolean send(Content content)
+	{
+		try
+		{
+			Socket socket = mServerSocket.accept();
+			socket.setSoTimeout(Constants.Timeouts.DATA_TRANSFER_SOCKET_TIMEOUT);
+
+			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+
+			os.writeInt(content.getType().getId());
+			os.writeUTF(content.getTitle());
+			byte[] data = content.getData();
+			if (data != null)
+			{
+				os.writeInt(data.length);
+				os.write(data);
+			}
+
+			os.close();
+			socket.close();
+			return true;
+		}
+		catch (IOException e)
+		{
+			// e.printStackTrace();
+		}
+		return false;
 	}
 
 	@Override
@@ -36,7 +67,7 @@ public class ContentServerReceiver extends AbstractServerReceiver<Content>
 					is.readFully(contentData);
 					break;
 			}
-			
+
 			is.close();
 			socket.close();
 

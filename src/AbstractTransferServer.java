@@ -1,18 +1,20 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public abstract class AbstractServerReceiver<T>
+public abstract class AbstractTransferServer<T>
 {
-	private static final int	SOCKET_TIMEOUT			= 10;
+	private static final int	SOCKET_TIMEOUT	= 10;
 
 	protected ServerSocket		mServerSocket;
 
-	public AbstractServerReceiver(int port) throws IOException
+	public AbstractTransferServer(int port) throws IOException
 	{
 		mServerSocket = new ServerSocket(port);
 		mServerSocket.setSoTimeout(SOCKET_TIMEOUT);
 	}
-	
+
+	public abstract boolean send(T data);
+
 	public abstract T receive();
 
 	public void close()
