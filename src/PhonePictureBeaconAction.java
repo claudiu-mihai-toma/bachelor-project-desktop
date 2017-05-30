@@ -1,17 +1,21 @@
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PhonePictureBeaconAction implements BeaconActionInterface
 {
+	private Object								mObject					= new Object();
 
-	private BufferedImageReceiver		mBufferedImageReceiver	= null;
-	private PhoneFeedFrame				mPhoneFeedFrame;
-	private EdgeDetectedScreenshotFrame	mScreenshotFrame;
-	private QRFrame						mQRFrame;
+	private Map<String, BufferedImageReceiver>	mBufferedImageReceivers	= null;
+	private PhoneFeedFrame						mPhoneFeedFrame;
+	private EdgeDetectedScreenshotFrame			mScreenshotFrame;
+	private QRFrame								mQRFrame;
 
 	public PhonePictureBeaconAction(PhoneFeedFrame phoneFeedFrame, EdgeDetectedScreenshotFrame screenshotFrame,
 			QRFrame qrFrame)
 	{
+		mBufferedImageReceivers = new HashMap<>();
 		mPhoneFeedFrame = phoneFeedFrame;
 		mScreenshotFrame = screenshotFrame;
 		mQRFrame = qrFrame;
@@ -20,53 +24,67 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 	@Override
 	public void actionSuccess(String address)
 	{
-		if (mBufferedImageReceiver == null)
+		synchronized (mObject)
 		{
-			try
+			if (!mBufferedImageReceivers.containsKey(address))
 			{
-				mBufferedImageReceiver = new BufferedImageReceiver(address, Constants.Ports.PICTURE_STREAM_SERVER_PORT);
+				try
+				{
+					// TODO: Handle the case when the map grows too much.
+					mBufferedImageReceivers.put(address,
+							new BufferedImageReceiver(address, Constants.Ports.PICTURE_STREAM_SERVER_PORT));
+				}
+				catch (IOException e)
+				{
+					System.out.println("Error creating BufferedImageReceiver!");
+					return;
+				}
 			}
-			catch (IOException e)
+
+			BufferedImageReceiver bufferedImageReceiver = mBufferedImageReceivers.get(address);
+			BufferedImage receivedBufferedImage = bufferedImageReceiver.receive();
+
+			if (receivedBufferedImage == null)
 			{
-				System.out.println("Error creating BufferedImageReceiver!");
+				bufferedImageReceiver.close();
+				mBufferedImageReceivers.remove(address);
+				System.out.println("Resetting image buffer receiver!");
 				return;
 			}
+
+			receivedBufferedImage = ImageDistanceCalculator.resize(receivedBufferedImage);
+
+			mPhoneFeedFrame.updateFrame(receivedBufferedImage);
+			mQRFrame.setTitle("phone address: " + address);
+			mQRFrame.displayInCorner();
+
+			BufferedImage screenshotBufferedImage = mScreenshotFrame.getNewScreenshot();
+
+			int comparisonResult = ImageComparerOpenCV.compare(receivedBufferedImage, screenshotBufferedImage);
+			bufferedImageReceiver.sendInt(comparisonResult);
 		}
-
-		BufferedImage receivedBufferedImage = mBufferedImageReceiver.receive();
-
-		if (receivedBufferedImage == null)
-		{
-			mBufferedImageReceiver.close();
-			mBufferedImageReceiver = null;
-			System.out.println("Resetting image buffer receiver!");
-			return;
-		}
-
-		receivedBufferedImage = ImageDistanceCalculator.resize(receivedBufferedImage);
-
-		mPhoneFeedFrame.updateFrame(receivedBufferedImage);
-		mQRFrame.setTitle("phone address: " + address);
-		mQRFrame.displayInCorner();
-
-		BufferedImage screenshotBufferedImage = mScreenshotFrame.getNewScreenshot();
-
-		int comparisonResult = ImageComparerOpenCV.compare(receivedBufferedImage, screenshotBufferedImage);
-		mBufferedImageReceiver.sendInt(comparisonResult);
 	}
 
 	@Override
 	public void actionFailure()
 	{
-		if (mBufferedImageReceiver != null)
+		synchronized (mObject)
 		{
-			mBufferedImageReceiver.close();
-			mBufferedImageReceiver = null;
-			System.out.println("Broadcast action failure!");
+			// TODO: Create a timer that periodically clears the hash map? This
+			// solution is simpler yet not efficient.
+			clean();
 		}
-
 		mPhoneFeedFrame.hideFrame();
 		mQRFrame.hideFrame();
 	}
 
+	private void clean()
+	{
+		for (BufferedImageReceiver bufferedImageReceiver : mBufferedImageReceivers.values())
+		{
+			bufferedImageReceiver.close();
+		}
+
+		mBufferedImageReceivers.clear();
+	}
 }

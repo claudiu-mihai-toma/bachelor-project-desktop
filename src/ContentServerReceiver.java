@@ -36,6 +36,9 @@ public class ContentServerReceiver extends AbstractServerReceiver<Content>
 					is.readFully(contentData);
 					break;
 			}
+			
+			is.close();
+			socket.close();
 
 			Content receivedContent = new Content(contentType, contentTitle, contentData);
 
