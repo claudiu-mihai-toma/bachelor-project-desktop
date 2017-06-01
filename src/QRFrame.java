@@ -52,7 +52,10 @@ public class QRFrame extends JFrame
 	public void displayInCorner()
 	{
 		this.setLocation(mXcoordinate, mYcoordinate);
-		this.setVisible(true);
+		if (!this.isVisible())
+		{
+			this.setVisible(true);
+		}
 	}
 
 	public void hideFrame()

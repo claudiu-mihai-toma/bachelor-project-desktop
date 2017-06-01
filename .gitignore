@@ -52,3 +52,9 @@ local.properties
 
 # Images
 *.jpg
+*.png
+*.jpeg
+*.gif
+
+# Test files
+test/*

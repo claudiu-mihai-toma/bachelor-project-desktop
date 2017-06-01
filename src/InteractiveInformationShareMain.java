@@ -1,8 +1,10 @@
 import java.awt.Image;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,12 +12,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+// TODO: Make this a proper class that has a minimum amount of static code.
 public class InteractiveInformationShareMain
 {
 
 	public static void main(String[] args)
 	{
-		Content contentToSend = handleArgs(args);
+		BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
+		Content contentToSend = null;
 
 		LocalAddressGetter localAddressGetter = new LocalAddressGetter();
 		String localAddress = localAddressGetter.getLocalAddress();
@@ -44,6 +48,7 @@ public class InteractiveInformationShareMain
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			phonePictureService.shutdown();
 			return;
 		}
 		phonePictureService.scheduleWithFixedDelay(phonePictureBroadcastBeaconReceiver, 0,
@@ -51,6 +56,21 @@ public class InteractiveInformationShareMain
 
 		while (qrFrame.isDisplayable())
 		{
+			try
+			{
+				if (contentToSend == null && inputReader.ready())
+				{
+					System.out.println("Input ready!");
+					String title = inputReader.readLine();
+					contentToSend = handleTitle(title);
+					System.out.println("Title = [" + title + "]");
+				}
+			}
+			catch (IOException e)
+			{
+				// e.printStackTrace();
+			}
+
 			if (contentToSend != null)
 			{
 				// System.out.println("Sending content...");
@@ -58,10 +78,10 @@ public class InteractiveInformationShareMain
 				if (sendSucceeded)
 				{
 					System.out.println("Content sent.");
+					// After sending content reenter in receive mode.
 					contentToSend = null;
 				}
 			}
-			else
 			{
 				Content content = contentTransferServer.receive();
 				handleContent(content);
@@ -93,7 +113,7 @@ public class InteractiveInformationShareMain
 	public static void handleTextContent(Content content)
 	{
 		String stringContent = content.getTitle();
-		System.out.println("content = [" + stringContent + "]\n");
+		System.out.println("text content received = [" + stringContent + "]\n");
 	}
 
 	public static void handleImageContent(Content content)
@@ -118,7 +138,7 @@ public class InteractiveInformationShareMain
 			e.printStackTrace();
 		}
 
-		System.out.println("content = [" + fileName + "]\n");
+		System.out.println("image content received = [" + fileName + "]\n");
 	}
 
 	public static Content handleArgs(String[] args)
@@ -141,6 +161,11 @@ public class InteractiveInformationShareMain
 
 	public static Content handleTitle(String title)
 	{
+		if (title == null || title.length() == 0)
+		{
+			return null;
+		}
+
 		File file = new File(title);
 		byte[] data = null;
 		Content.ContentType type = Content.ContentType.TEXT;
@@ -152,6 +177,7 @@ public class InteractiveInformationShareMain
 			{
 				data = Files.readAllBytes(path);
 				type = Content.ContentType.IMAGE;
+				title = Utils.getFileName(title);
 			}
 			catch (IOException e)
 			{

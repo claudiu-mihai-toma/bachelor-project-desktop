@@ -57,7 +57,10 @@ public class PhoneFeedFrame extends JFrame
 	public void displayInCorner()
 	{
 		this.setLocation(mXcoordinate, mYcoordinate);
-		this.setVisible(true);
+		if (!this.isVisible())
+		{
+			this.setVisible(true);
+		}
 	}
 
 	public void hideFrame()
@@ -69,7 +72,7 @@ public class PhoneFeedFrame extends JFrame
 	{
 		if (mPhoneFeedFrameInitialized)
 		{
-			//System.out.println("Phone feed already initialized.");
+			// System.out.println("Phone feed already initialized.");
 			ImageIcon icon = new ImageIcon(image);
 			mLabel.setIcon(icon);
 			mLabel.repaint();
@@ -78,7 +81,7 @@ public class PhoneFeedFrame extends JFrame
 		}
 		else
 		{
-			//System.out.println("Initializing phone feed...");
+			// System.out.println("Initializing phone feed...");
 			initialize(image);
 		}
 	}

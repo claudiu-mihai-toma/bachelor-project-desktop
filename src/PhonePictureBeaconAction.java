@@ -48,7 +48,7 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 			{
 				bufferedImageReceiver.close();
 				mBufferedImageReceivers.remove(address);
-				System.out.println("Resetting image buffer receiver!");
+				System.out.println("Closed image buffer receiver!");
 				return;
 			}
 

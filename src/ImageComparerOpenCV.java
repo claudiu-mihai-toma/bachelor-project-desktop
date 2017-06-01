@@ -1,13 +1,9 @@
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.DMatch;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.features2d.DescriptorExtractor;
@@ -18,20 +14,15 @@ import org.opencv.imgcodecs.Imgcodecs;
 public class ImageComparerOpenCV
 {
 	private static final double DEFAULT_THRESHOLD_DISTANCE = 30;
-	
-	private static String	FILE_1	= "file1.jpeg";
-	private static String	FILE_2	= "file2.jpeg";
-
 
 	public static int compare(BufferedImage image1, BufferedImage image2)
 	{
 		return compare(image1, image2, DEFAULT_THRESHOLD_DISTANCE);
 	}
-	
+
 	/**
 	 * Compare that two images is similar using feature mapping
 	 * 
-	 * @author minikim
 	 * @param filename1
 	 *            - the first image
 	 * @param filename2
@@ -40,35 +31,14 @@ public class ImageComparerOpenCV
 	 */
 	public static int compare(BufferedImage image1, BufferedImage image2, double thresholdDistance)
 	{
-		File file1 = null;
-		File file2 = null;
-		try
-		{
-			file1 = new File(FILE_1);
-			file1.createNewFile();
-			FileOutputStream fos1 = new FileOutputStream(file1);
-			ImageIO.write(image1, "jpeg", fos1);
-
-			file2 = new File(FILE_2);
-			file2.createNewFile();
-			FileOutputStream fos2 = new FileOutputStream(file2);
-			ImageIO.write(image2, "jpeg", fos2);
-		}
-		catch (IOException e)
-		{
-		}
-
-		int retVal = 0;
-		//long startTime = System.currentTimeMillis();
-
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		int retVal = 0;
 
-		// Load images to compare
-		Mat img1 = Imgcodecs.imread(FILE_1, Imgcodecs.CV_LOAD_IMAGE_COLOR);
-		Mat img2 = Imgcodecs.imread(FILE_2, Imgcodecs.CV_LOAD_IMAGE_COLOR);
+		byte[] imageBytes1 = Utils.toByteArray(image1);
+		Mat img1 = Imgcodecs.imdecode(new MatOfByte(imageBytes1), Imgcodecs.CV_LOAD_IMAGE_COLOR);
 
-		file1.delete();
-		file2.delete();
+		byte[] imageBytes2 = Utils.toByteArray(image2);
+		Mat img2 = Imgcodecs.imdecode(new MatOfByte(imageBytes2), Imgcodecs.CV_LOAD_IMAGE_COLOR);
 
 		// Declare key point of images
 		MatOfKeyPoint keypoints1 = new MatOfKeyPoint();
@@ -93,14 +63,7 @@ public class ImageComparerOpenCV
 
 		// Match points of two images
 		MatOfDMatch matches = new MatOfDMatch();
-		// System.out.println("Type of Image1= " + descriptors1.type() + ", Type
-		// of Image2= " + descriptors2.type());
-		// System.out.println("Cols of Image1= " + descriptors1.cols() + ", Cols
-		// of Image2= " + descriptors2.cols());
 
-		// Avoid to assertion failed
-		// Assertion failed (type == src2.type() && src1.cols == src2.cols &&
-		// (type == CV_32F || type == CV_8U)
 		if (descriptors2.cols() == descriptors1.cols())
 		{
 			matcher.match(descriptors1, descriptors2, matches);
@@ -118,7 +81,8 @@ public class ImageComparerOpenCV
 				if (dist > max_dist)
 					max_dist = dist;
 			}
-			//System.out.println("max_dist=" + max_dist + ", min_dist=" + min_dist);
+			// System.out.println("max_dist=" + max_dist + ", min_dist=" +
+			// min_dist);
 
 			// Extract good images (distances are under 10)
 			for (int i = 0; i < descriptors1.rows(); i++)
@@ -128,12 +92,13 @@ public class ImageComparerOpenCV
 					retVal++;
 				}
 			}
-			//System.out.println("matching count=" + retVal + " out of " + descriptors1.rows());
+			// System.out.println("matching count=" + retVal + " out of " +
+			// descriptors1.rows());
 		}
 
-		//long estimatedTime = System.currentTimeMillis() - startTime;
-		//System.out.println("estimatedTime=" + estimatedTime + "ms");
-		//System.out.println();
+		// long estimatedTime = System.currentTimeMillis() - startTime;
+		// System.out.println("estimatedTime=" + estimatedTime + "ms");
+		// System.out.println();
 
 		return retVal;
 	}
