@@ -32,14 +32,16 @@ public class InteractiveInformationShareMain
 		EdgeDetectedScreenshotFrame screenshotFrame = new EdgeDetectedScreenshotFrame();
 		PhoneFeedFrame phoneFeedFrame = new PhoneFeedFrame();
 
-		ContentTransferServer contentTransferServer;
+		ContentTransferServer contentReceiverServer;
+		ContentTransferServer contentSenderServer;
 		BroadcastBeaconReceiver phonePictureBroadcastBeaconReceiver;
 
 		ScheduledExecutorService phonePictureService = Executors.newScheduledThreadPool(1);
 
 		try
 		{
-			contentTransferServer = new ContentTransferServer(Constants.Ports.CONTENT_RECEIVER_PORT);
+			contentReceiverServer = new ContentTransferServer(Constants.Ports.CONTENT_RECEIVER_PORT);
+			contentSenderServer = new ContentTransferServer(Constants.Ports.CONTENT_SENDER_PORT);
 
 			phonePictureBroadcastBeaconReceiver = new BroadcastBeaconReceiver(
 					Constants.Ports.PICTURE_STREAM_BEACON_PORT, Constants.Timeouts.PHONE_IMAGE_SOCKET_TIMEOUT,
@@ -58,12 +60,14 @@ public class InteractiveInformationShareMain
 		{
 			try
 			{
-				if (contentToSend == null && inputReader.ready())
+				if (inputReader.ready())
 				{
 					System.out.println("Input ready!");
 					String title = inputReader.readLine();
 					contentToSend = handleTitle(title);
-					System.out.println("Title = [" + title + "]");
+					System.out.println("Title = [" + title + "]; sending " + contentToSend.getType());
+
+					System.out.flush();
 				}
 			}
 			catch (IOException e)
@@ -74,7 +78,7 @@ public class InteractiveInformationShareMain
 			if (contentToSend != null)
 			{
 				// System.out.println("Sending content...");
-				boolean sendSucceeded = contentTransferServer.send(contentToSend);
+				boolean sendSucceeded = contentSenderServer.send(contentToSend);
 				if (sendSucceeded)
 				{
 					System.out.println("Content sent.");
@@ -83,12 +87,14 @@ public class InteractiveInformationShareMain
 				}
 			}
 			{
-				Content content = contentTransferServer.receive();
+				Content content = contentReceiverServer.receive();
 				handleContent(content);
 			}
 			screenshotFrame.updateScreenshot();
 		}
 
+		contentReceiverServer.close();
+		contentSenderServer.close();
 		phonePictureService.shutdown();
 	}
 

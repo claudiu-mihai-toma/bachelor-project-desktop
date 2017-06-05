@@ -28,7 +28,6 @@ public class QRFrame extends JFrame
 		{
 			throw new InvalidParameterException();
 		}
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.BLACK);
 		ImageIcon icon = new ImageIcon(image);
