@@ -9,13 +9,16 @@ public class ImageDistanceCalculator
 
 	public static double compare(BufferedImage image1, BufferedImage image2)
 	{
-		BufferedImage img1 = resize(image1);
-		BufferedImage img2 = resize(image2);
-
+		BufferedImage img1 = crop(image1);
+		BufferedImage img2 = crop(image2);
+		int width = img1.getWidth();
+		int height = img1.getHeight();
+		
+		
 		long diff = 0;
-		for (int y = 0; y < SCALE_HEIGHT; y++)
+		for (int y = 0; y < height; y++)
 		{
-			for (int x = 0; x < SCALE_WIDTH; x++)
+			for (int x = 0; x < width; x++)
 			{
 				int rgb1 = img1.getRGB(x, y);
 				int rgb2 = img2.getRGB(x, y);
@@ -30,7 +33,7 @@ public class ImageDistanceCalculator
 				diff += Math.abs(b1 - b2);
 			}
 		}
-		double n = SCALE_WIDTH * SCALE_HEIGHT * 3;
+		double n = width * height * 3;
 		double p = diff / n / 255.0;
 
 		return p;

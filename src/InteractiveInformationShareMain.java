@@ -1,4 +1,5 @@
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,90 +13,125 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.imageio.ImageIO;
+
 // TODO: Make this a proper class that has a minimum amount of static code.
 public class InteractiveInformationShareMain
 {
+	public static final boolean RUN_MAIN = true;
 
-	public static void main(String[] args)
+	public static void compare()
 	{
-		BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
-		Content contentToSend = null;
+		BufferedImage img1 = Utils.getBufferedImage("test/1");
+		BufferedImage img2 = Utils.getBufferedImage("test/2");
 
-		LocalAddressGetter localAddressGetter = new LocalAddressGetter();
-		String localAddress = localAddressGetter.getLocalAddress();
+		double res1 = ImageDistanceCalculator.compare(img1, img2);
+		int res2 = ImageComparerOpenCV.compare(img1, img2, 45);
 
-		Image qrCode = QRCodeGenerator.generateQRCode(localAddress);
-
-		QRFrame qrFrame = new QRFrame();
-		qrFrame.initialize(qrCode, localAddress);
-
-		EdgeDetectedScreenshotFrame screenshotFrame = new EdgeDetectedScreenshotFrame();
-		PhoneFeedFrame phoneFeedFrame = new PhoneFeedFrame();
-
-		ContentTransferServer contentReceiverServer;
-		ContentTransferServer contentSenderServer;
-		BroadcastBeaconReceiver phonePictureBroadcastBeaconReceiver;
-
-		ScheduledExecutorService phonePictureService = Executors.newScheduledThreadPool(1);
-
+		System.out.println("res1 = [" + res1 + "]");
+		System.out.println("res2 = [" + res2 + "]");
+		
+		img1 = EdgeDetectedScreenshotFrame.toEdgeDetectedImage(img1);
+		
+		File file  = new File("test/3");
 		try
 		{
-			contentReceiverServer = new ContentTransferServer(Constants.Ports.CONTENT_RECEIVER_PORT);
-			contentSenderServer = new ContentTransferServer(Constants.Ports.CONTENT_SENDER_PORT);
-
-			phonePictureBroadcastBeaconReceiver = new BroadcastBeaconReceiver(
-					Constants.Ports.PICTURE_STREAM_BEACON_PORT, Constants.Timeouts.PHONE_IMAGE_SOCKET_TIMEOUT,
-					new PhonePictureBeaconAction(phoneFeedFrame, screenshotFrame, qrFrame));
+			ImageIO.write(img1, "png", file);
 		}
 		catch (IOException e)
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			phonePictureService.shutdown();
-			return;
 		}
-		phonePictureService.scheduleWithFixedDelay(phonePictureBroadcastBeaconReceiver, 0,
-				Constants.Delays.PHONE_IMAGE_TIMER_DELAY, TimeUnit.MILLISECONDS);
+	}
 
-		while (qrFrame.isDisplayable())
+	public static void main(String[] args)
+	{
+		if (RUN_MAIN)
 		{
+			BufferedReader inputReader = new BufferedReader(new InputStreamReader(System.in));
+			Content contentToSend = null;
+
+			LocalAddressGetter localAddressGetter = new LocalAddressGetter();
+			String localAddress = localAddressGetter.getLocalAddress();
+
+			Image qrCode = QRCodeGenerator.generateQRCode(localAddress);
+
+			QRFrame qrFrame = new QRFrame();
+			qrFrame.initialize(qrCode, localAddress);
+
+			EdgeDetectedScreenshotFrame screenshotFrame = new EdgeDetectedScreenshotFrame();
+			PhoneFeedFrame phoneFeedFrame = new PhoneFeedFrame();
+
+			ContentTransferServer contentReceiverServer;
+			ContentTransferServer contentSenderServer;
+			BroadcastBeaconReceiver phonePictureBroadcastBeaconReceiver;
+
+			ScheduledExecutorService phonePictureService = Executors.newScheduledThreadPool(1);
+
 			try
 			{
-				if (inputReader.ready())
-				{
-					System.out.println("Input ready!");
-					String title = inputReader.readLine();
-					contentToSend = handleTitle(title);
-					System.out.println("Title = [" + title + "]; sending " + contentToSend.getType());
+				contentReceiverServer = new ContentTransferServer(Constants.Ports.CONTENT_RECEIVER_PORT);
+				contentSenderServer = new ContentTransferServer(Constants.Ports.CONTENT_SENDER_PORT);
 
-					System.out.flush();
-				}
+				phonePictureBroadcastBeaconReceiver = new BroadcastBeaconReceiver(
+						Constants.Ports.PICTURE_STREAM_BEACON_PORT, Constants.Timeouts.PHONE_IMAGE_SOCKET_TIMEOUT,
+						new PhonePictureBeaconAction(phoneFeedFrame, screenshotFrame, qrFrame));
 			}
 			catch (IOException e)
 			{
-				// e.printStackTrace();
+				e.printStackTrace();
+				phonePictureService.shutdown();
+				return;
 			}
+			phonePictureService.scheduleWithFixedDelay(phonePictureBroadcastBeaconReceiver, 0,
+					Constants.Delays.PHONE_IMAGE_TIMER_DELAY, TimeUnit.MILLISECONDS);
 
-			if (contentToSend != null)
+			while (qrFrame.isDisplayable())
 			{
-				// System.out.println("Sending content...");
-				boolean sendSucceeded = contentSenderServer.send(contentToSend);
-				if (sendSucceeded)
+				try
 				{
-					System.out.println("Content sent.");
-					// After sending content reenter in receive mode.
-					contentToSend = null;
-				}
-			}
-			{
-				Content content = contentReceiverServer.receive();
-				handleContent(content);
-			}
-			screenshotFrame.updateScreenshot();
-		}
+					if (inputReader.ready())
+					{
+						System.out.println("Input ready!");
+						String title = inputReader.readLine();
+						contentToSend = handleTitle(title);
+						System.out.println("Title = [" + title + "]; sending " + contentToSend.getType());
 
-		contentReceiverServer.close();
-		contentSenderServer.close();
-		phonePictureService.shutdown();
+						System.out.flush();
+					}
+				}
+				catch (IOException e)
+				{
+					// e.printStackTrace();
+				}
+
+				if (contentToSend != null)
+				{
+					// System.out.println("Sending content...");
+					boolean sendSucceeded = contentSenderServer.send(contentToSend);
+					if (sendSucceeded)
+					{
+						System.out.println("Content sent.");
+						// After sending content reenter in receive mode.
+						contentToSend = null;
+					}
+				}
+				{
+					Content content = contentReceiverServer.receive();
+					handleContent(content);
+				}
+				screenshotFrame.updateScreenshot();
+			}
+
+			contentReceiverServer.close();
+			contentSenderServer.close();
+			phonePictureService.shutdown();
+		}
+		else
+		{
+			compare();
+		}
 	}
 
 	public static void handleContent(Content content)

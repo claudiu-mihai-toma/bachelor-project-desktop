@@ -55,7 +55,8 @@ public class PhonePictureBeaconAction implements BeaconActionInterface
 			receivedBufferedImage = ImageDistanceCalculator.resize(receivedBufferedImage);
 
 			mPhoneFeedFrame.updateFrame(receivedBufferedImage);
-			mQRFrame.setTitle("phone address: " + address);
+			//mQRFrame.setTitle("phone address: " + address);
+			mQRFrame.setTitle(address);
 			mQRFrame.displayInCorner();
 
 			BufferedImage screenshotBufferedImage = mScreenshotFrame.getNewScreenshot();

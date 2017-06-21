@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import ij.process.ColorProcessor;
+
 public class EdgeDetectedScreenshotFrame extends JFrame
 {
 	private static final long	serialVersionUID	= 1L;
@@ -29,7 +31,7 @@ public class EdgeDetectedScreenshotFrame extends JFrame
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
-	
+
 	public BufferedImage getNewScreenshot()
 	{
 		BufferedImage image = mScreenshotGrabber.getScreenshot();
@@ -56,12 +58,15 @@ public class EdgeDetectedScreenshotFrame extends JFrame
 
 	public static BufferedImage toEdgeDetectedImage(BufferedImage image)
 	{
-		/*ColorProcessor ip = new ColorProcessor(image);
+		if (InteractiveInformationShareMain.RUN_MAIN)
+		{
+			return image;
+		}
+
+		ColorProcessor ip = new ColorProcessor(image);
 		ip.findEdges();
 		BufferedImage edgeImage = ip.getBufferedImage();
 
-		return edgeImage;*/
-		
-		return image;
+		return edgeImage;
 	}
 }
